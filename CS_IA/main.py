@@ -4,6 +4,7 @@ import cv2
 import output
 import findTitle
 import findAuthor
+import getMetadata
 import numpy as np
 import pytesseract
 from pdf2image import convert_from_path
@@ -16,7 +17,7 @@ import time
 
 
 def GUI():
-    global root, progress1, progress2, lblPg1, lblPg2, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
+    global root, progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
     
     root = tk.Tk()
     root.title("PDF Title Extraction")
@@ -54,13 +55,6 @@ def GUI():
     progress1 = ttk.Progressbar(root, orient = HORIZONTAL, length = 500, mode = "determinate") 
     progress1.pack(fill=tk.X, padx=10)
 
-    lblPg2 = tk.Label(root, text=tk.StringVar())
-    lblPg2.pack(pady=10)
-    lblPg2["text"] = "Process #2: image to information"
-
-    
-    progress2 = ttk.Progressbar(root, orient = HORIZONTAL, length = 500, mode = "determinate") 
-    progress2.pack(fill=tk.X, padx=10,pady=10)
 
 
     def btnConfirm():
@@ -97,9 +91,9 @@ def GUI():
         btnRename["state"] = "disabled"
         lblDir["text"] = "directory with target PDF files"
         lblPg1["text"] = "Process #1: PDF to image"
-        lblPg2["text"] = "Process #2: image to information"
+        
         progress1["value"] = 0
-        progress2["value"] = 0
+        
         
     btnRestart = tk.Button(frame3, text="Restart", command=btnRestart, width=15)
     btnRestart.pack(in_=frame3, side=LEFT)
@@ -128,7 +122,7 @@ def GUI():
 
 
 def main():
-    global progress1, progress2, lblPg1, lblPg2, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
+    global progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
     docs = []
     info = []
     file_name = []
@@ -137,61 +131,62 @@ def main():
     count = 0
     for file in os.listdir(directory):
         if file.endswith(".pdf"):
-            page = convert_from_path(file)[0]
-            docs.append(page)
             file_name.append(file)
-            #break
-        count+=1
-        val = count/len(os.listdir(directory)) * 100
-        progress1["value"] = val
-        lblPg1["text"] = "Converting PDF to image, Progress: " + str(int(val)) + "%"
+
+            title = getMetadata.getInfo(file, "title")
+            author = getMetadata.getInfo(file, "creator")
+            if title != None or author != None:
+                info.append([title,author])
+                listbox.insert(END, str(count+1)+ " "+title)
+                listbox.insert(END, "")
+                count+=1
+                continue
+            
+            page = convert_from_path(file)[0]
+            image = np.array(page)
+
+            # ---------- findTitle ---------- # 
+            title_rect = findTitle.findTitle(image)
+            if title_rect == None:
+                title = "N/A"
+            else:
+                (x,y,w,h) = title_rect
+                title = pytesseract.image_to_string(image[y:y+h,x:])
+                title = re.sub(r"[^a-zA-Z0-9 &,;:-]+", " ", title)
+                title = re.sub(r"\s\s+", " ", title)
+                title = re.sub(r"\s,", ",", title)
+                #cv2.rectangle(image, title_rect, (0,255,0), 5)
+                #cv2.imshow("title", cv2.resize(image, (image.shape[1]//2,image.shape[0]//2)))
+
+            # ---------- findAuthor ---------- # 
+            author_rect = findAuthor.findAuthor(image, title_rect)
+            if author_rect == None:
+                author = "N/A"
+            else:
+                (x,y,w,h) = author_rect
+                author = pytesseract.image_to_string(image[y:y+h,x:])
+                author = re.sub(r"[^a-zA-Z &,;:-]+", " ", author)
+                author = re.sub(r"\s\s+", " ", author)
+                author = re.sub(r"\s(,|-|&)", ",", author)
+                author = author.strip()
+                #cv2.rectangle(image, author_rect, (0,255,0), 5)
+                #cv2.imshow("author", cv2.resize(image, (image.shape[1]//2,image.shape[0]//2)))
+
+            info.append([title,author])
+            listbox.insert(END, str(count+1)+ " "+title)
+            listbox.insert(END, "")
+            count+=1
+            val = count/len(os.listdir(directory)) * 100
+            progress1["value"] = val
+            lblPg1["text"] = "Progress: " + str(int(val)) + "%"
 
     progress1["value"] = 100
     lblPg1["text"] = "Converting PDF to image, Progress: 100%"
-    count = 0
-    for page in docs:
-        image = np.array(page)
-        title_rect = findTitle.findTitle(image)
-        if title_rect == None:
-            title = "N/A"
-        else:
-            (x,y,w,h) = title_rect
-            title = pytesseract.image_to_string(image[y:y+h,x:])
-            title = re.sub(r"[^a-zA-Z0-9 &,;:-]+", " ", title)
-            title = re.sub(r"\s\s+", " ", title)
-            title = re.sub(r"\s,", ",", title)
-            #cv2.rectangle(image, title_rect, (0,255,0), 5)
-            #cv2.imshow("title", cv2.resize(image, (image.shape[1]//2,image.shape[0]//2)))
-
-        author_rect = findAuthor.findAuthor(image, title_rect)
-        if author_rect == None:
-            author = "N/A"
-        else:
-            (x,y,w,h) = author_rect
-            author = pytesseract.image_to_string(image[y:y+h,x:])
-            author = re.sub(r"[^a-zA-Z &,;:-]+", " ", author)
-            author = re.sub(r"\s\s+", " ", author)
-            author = re.sub(r"\s(,|-|&)", ",", author)
-            author = author.strip()
-            #cv2.rectangle(image, author_rect, (0,255,0), 5)
-            #cv2.imshow("author", cv2.resize(image, (image.shape[1]//2,image.shape[0]//2)))
-
-        info.append([title,author])
-        count+=1
-        val = count/len(docs) * 100
-        progress2["value"] = val
-        lblPg2["text"] = "Converting image to information, Progress: " + str(int(val)) + "%"
-        listbox.insert(END, str(count)+ " "+title)
-        listbox.insert(END, "")
-    progress2["value"] = 100
-    lblPg2["text"] = "Converting image to information, Progress: 100%"
     messagebox.showinfo(title="Success!", message="Successfully extracted!")
+    count = 0
     btnExport["state"] = "normal"
     btnRename["state"] = "normal"
     
-
-    
-
 
 if __name__ == '__main__':
     _thread.start_new_thread(GUI, ())

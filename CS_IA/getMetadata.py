@@ -2,7 +2,6 @@
 Modified based on PDF Metadata at
 https://gitlab.com/nxl4/pdf-metadata/-/blob/master/pdf-metadata.py
 LICENSE TERMS APPLY
-
 """
 import re
 
@@ -110,7 +109,46 @@ def de_dupe_list(list_var):
     return new_list
 
 
-new_file = BinaryPdfForensics(file_path="p003p.pdf")
-asdf = new_file.gen_report()[1]
-#a = asdf.decode("utf-8")
-print(asdf)
+def getInfo(file_path, field): # field = [title, publisher, creator, subject,description]
+
+    new_file = BinaryPdfForensics(file_path=file_path)
+    try:
+        file_info = list(new_file.gen_report()[1][1].values())[0]
+    except IndexError:
+        return None
+    except FileNotFoundError:
+        return None
+    file_info = file_info.decode("utf-8")
+    file_info = re.sub('\s\s+', ' ', file_info)
+    
+    
+    info_start = "<dc:" + field + ">"
+    info_end = "</dc:" + field + ">"
+    results = file_info[file_info.find(info_start)+len(info_start):file_info.find(info_end)].strip()
+    results = re.sub('> <', '><', results)
+    in_brackets = False
+    endpoints = []
+    for i in range(len(results)):
+        char = results[i]
+        if char == "\n":
+            continue
+        if char == "<":
+            in_brackets = True
+        if in_brackets == False and (char != "<" or char != ">"):
+            endpoints.append(i)
+        if char == ">":
+            in_brackets = False
+    #results = results[endpoints[0]:endpoints[-1]+1]
+    answer = ""
+    
+    for i in range(len(endpoints)):
+        if i>0:
+            if endpoints[i] - 1 != endpoints[i-1]:
+                answer += ", "
+        answer += results[endpoints[i]]
+    answer = re.sub(" ,",",",answer)
+    if "Adobe" in answer or "Apple" in answer or "Windows" in answer or "TeX" in answer:
+        answer = None
+    return answer
+
+print(getInfo("p005p.pdf", "title"))
