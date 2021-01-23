@@ -3,6 +3,7 @@ def toHTML(info, export_directory):
 
     with open(export_directory + "/index.html", "w") as file:
         file.write("<!DOCTYPE html> <html> <head> <title>Documents</title> All Documents </head> <body>")
+        #file.write(export_directory)
         file.write("<ol>")
         for item in info:
             file.write("<li>")

@@ -15,18 +15,27 @@ from tkinter import ttk, filedialog, messagebox
 import _thread
 import time
 
+end = False
 
 def GUI():
     global root, progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
-    
     root = tk.Tk()
+    
+    def on_exit():
+        root.destroy()
+        end = True
+        
+    
     root.title("PDF Title Extraction")
     root.geometry("1000x500")
     root.resizable(False, False)
+    root.protocol("WM_DELETE_WINDOW", on_exit)
 
     lblIntro = tk.Label(root, text="Welcome!", pady=10)
     lblIntro.pack()
 
+
+        
     def btnSelect():
         global directory
         directory = filedialog.askdirectory()
@@ -118,7 +127,14 @@ def GUI():
     btnExport["state"] = "disabled"
     btnRename["state"] = "disabled"
 
+    '''
+    if end == True:
+        print("asdf")
+        exit()
+    a = input("End?: ")'''
     root.mainloop()
+    
+
 
 
 def main():
@@ -141,8 +157,12 @@ def main():
                 listbox.insert(END, "")
                 count+=1
                 continue
-            
-            page = convert_from_path(file)[0]
+
+            try:
+                page = convert_from_path(file)[0]
+            except ValueError:
+                print("aaa")
+                continue
             image = np.array(page)
 
             # ---------- findTitle ---------- # 
@@ -186,8 +206,13 @@ def main():
     count = 0
     btnExport["state"] = "normal"
     btnRename["state"] = "normal"
-    
 
+
+    
+'''
 if __name__ == '__main__':
     _thread.start_new_thread(GUI, ())
+'''
+GUI()
+    
     
