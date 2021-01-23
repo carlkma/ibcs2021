@@ -150,5 +150,3 @@ def getInfo(file_path, field): # field = [title, publisher, creator, subject,des
     if "Adobe" in answer or "Apple" in answer or "Windows" in answer or "TeX" in answer:
         answer = None
     return answer
-
-print(getInfo("p005p.pdf", "title"))

@@ -24,11 +24,24 @@ def rename(file_name, info, directory):
         postfix += 1
     os.mkdir(".backup-" + str(postfix))
     for i in range(len(file_name)):
-        shutil.copyfile(file_name[i], ".backup-" + str(postfix) + "//" + file_name[i])
+
+        try:
+            shutil.copyfile(file_name[i], ".backup-" + str(postfix) + "//" + file_name[i])
+        except FileNotFoundError:
+            continue
         old_name = file_name[i]
         new_name = info[i][0]
-        new_name = re.sub(":"," -",new_name).strip()
+        new_name = re.sub(":"," -",new_name)
+        new_name = re.sub(r"[^a-zA-Z0-9 _-]+","",new_name).strip()
         if len(new_name) > 50:
             new_name = new_name[:50].strip()
         new_name += ".pdf"
-        os.rename(old_name, new_name)
+        try:
+            os.rename(old_name, new_name)
+        except PermissionError:
+            if os.path.exists(".backup-" + str(postfix) + "//" + file_name[i]):
+                os.remove(".backup-" + str(postfix) + "//" + file_name[i])
+            if len(os.listdir(".backup-" + str(postfix))) == 0:
+                os.rmdir(".backup-" + str(postfix))
+            return file_name[i]
+    return "%$OK"

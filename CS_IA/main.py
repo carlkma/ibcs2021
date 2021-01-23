@@ -15,21 +15,13 @@ from tkinter import ttk, filedialog, messagebox
 import _thread
 import time
 
-end = False
-
 def GUI():
     global root, progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
     root = tk.Tk()
     
-    def on_exit():
-        root.destroy()
-        end = True
-        
-    
     root.title("PDF Title Extraction")
     root.geometry("1000x500")
     root.resizable(False, False)
-    root.protocol("WM_DELETE_WINDOW", on_exit)
 
     lblIntro = tk.Label(root, text="Welcome!", pady=10)
     lblIntro.pack()
@@ -44,7 +36,6 @@ def GUI():
             btnConfirm["state"] = "normal"
         else:
             lblDir["text"] = "directory with target PDF files"
-        #lblIntro.pack(in_=frame1, side=LEFT)
 
    
     frame1 = Frame(root)
@@ -73,6 +64,7 @@ def GUI():
         btnRename["state"] = "disabled"
         _thread.start_new_thread(main, ())
         
+        
     btnConfirm = tk.Button(root, text="Confirm", command=btnConfirm)
     btnConfirm.pack(padx=10,pady=10, fill=tk.X)
 
@@ -92,7 +84,9 @@ def GUI():
     frame3.pack(fill=tk.X,padx=10)
     
     def btnRestart():
-        #listbox clear
+        #root.destroy()
+        
+        '''
         listbox.delete(3,listbox.size()-1)
         btnSelect["state"] = "normal"
         btnConfirm["state"] = "disabled"
@@ -102,7 +96,7 @@ def GUI():
         lblPg1["text"] = "Process #1: PDF to image"
         
         progress1["value"] = 0
-        
+        '''
         
     btnRestart = tk.Button(frame3, text="Restart", command=btnRestart, width=15)
     btnRestart.pack(in_=frame3, side=LEFT)
@@ -118,8 +112,12 @@ def GUI():
     btnExport.pack(in_=frame3, side=RIGHT)
 
     def btnRename():
-        output.rename(file_name, info, directory)
-        messagebox.showinfo(title="Success!", message="Successfully renamed!")
+
+        status = output.rename(file_name, info, directory)
+        if status == "%$OK":
+            messagebox.showinfo(title="Success", message="Successfully renamed!")
+        else:
+            messagebox.showinfo(title="Error", message="Something went wrong when renaming the file " + status + ". Do you have it opened using another application?")
     btnRename = tk.Button(frame3, text="Rename", command=btnRename, width=15)
     btnRename.pack(in_=frame3, side=RIGHT, padx=10)
     
@@ -140,18 +138,21 @@ def main():
 
     count = 0
     for file in os.listdir(directory):
-        print(directory)
-        print(file)
         if file.endswith(".pdf"):
+            
+            count+=1
+            val = count/len(os.listdir(directory)) * 100
+            progress1["value"] = val
+            lblPg1["text"] = "Progress: " + str(int(val)) + "%"
+            
             file_name.append(file)
             file = directory + "//" + file
             title = getMetadata.getInfo(file, "title")
             author = getMetadata.getInfo(file, "creator")
             if title != None or author != None:
                 info.append([title,author])
-                listbox.insert(END, str(count+1)+ " "+title)
+                listbox.insert(END, str(count)+ " "+title)
                 listbox.insert(END, "")
-                count+=1
                 continue
 
             try:
@@ -189,12 +190,9 @@ def main():
                 #cv2.imshow("author", cv2.resize(image, (image.shape[1]//2,image.shape[0]//2)))
 
             info.append([title,author])
-            listbox.insert(END, str(count+1)+ " "+title)
+            listbox.insert(END, str(count)+ " "+title)
             listbox.insert(END, "")
-            count+=1
-            val = count/len(os.listdir(directory)) * 100
-            progress1["value"] = val
-            lblPg1["text"] = "Progress: " + str(int(val)) + "%"
+
 
     progress1["value"] = 100
     lblPg1["text"] = "Converting PDF to image, Progress: 100%"
@@ -203,6 +201,5 @@ def main():
     btnExport["state"] = "normal"
     btnRename["state"] = "normal"
 
-GUI()
-    
-    
+if __name__ == '__main__':
+    _thread.start_new_thread(GUI, ()) 
