@@ -126,12 +126,6 @@ def GUI():
     btnConfirm["state"] = "disabled"
     btnExport["state"] = "disabled"
     btnRename["state"] = "disabled"
-
-    '''
-    if end == True:
-        print("asdf")
-        exit()
-    a = input("End?: ")'''
     root.mainloop()
     
 
@@ -146,9 +140,11 @@ def main():
 
     count = 0
     for file in os.listdir(directory):
+        print(directory)
+        print(file)
         if file.endswith(".pdf"):
             file_name.append(file)
-
+            file = directory + "//" + file
             title = getMetadata.getInfo(file, "title")
             author = getMetadata.getInfo(file, "creator")
             if title != None or author != None:
@@ -161,7 +157,7 @@ def main():
             try:
                 page = convert_from_path(file)[0]
             except ValueError:
-                print("aaa")
+                print("error")
                 continue
             image = np.array(page)
 
@@ -207,12 +203,6 @@ def main():
     btnExport["state"] = "normal"
     btnRename["state"] = "normal"
 
-
-    
-'''
-if __name__ == '__main__':
-    _thread.start_new_thread(GUI, ())
-'''
 GUI()
     
     
