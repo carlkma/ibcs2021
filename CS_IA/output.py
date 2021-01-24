@@ -44,4 +44,6 @@ def rename(file_name, info, directory):
             if len(os.listdir(".backup-" + str(postfix))) == 0:
                 os.rmdir(".backup-" + str(postfix))
             return file_name[i]
+    if len(os.listdir(".backup-" + str(postfix))) == 0:
+        os.rmdir(".backup-" + str(postfix))
     return "%$OK"

@@ -16,47 +16,51 @@ import _thread
 import time
 
 def GUI():
-    global root, progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
+    global root, progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
     root = tk.Tk()
     
-    root.title("PDF Title Extraction")
-    root.geometry("1000x500")
+    root.title("PDFriend")
+    root.geometry("500x500")
     root.resizable(False, False)
 
-    lblIntro = tk.Label(root, text="Welcome!", pady=10)
+    # Title
+    lblIntro = tk.Label(root, text="PDFriend - Here to help with file organization!", font=("Cambria bold",12), pady=20)
     lblIntro.pack()
 
 
-        
+    # Select (Frame1)
     def btnSelect():
+        
+        # reset things
+        progress1["value"] = 0
+        listbox.delete(0,listbox.size()-1)
+        btnExport["state"] = "disabled"
+        btnRename["state"] = "disabled"
+        lblDir["text"] = "directory with target PDF files"
+        lblPg1["text"] = "Progress: 0%"
+        
         global directory
         directory = filedialog.askdirectory()
         if directory != "":
-            lblDir["text"] = directory
+            if len(directory) < 35:
+                lblDir["text"] = directory
+            else:
+                lblDir["text"] = "..." + directory[-32:]
             btnConfirm["state"] = "normal"
         else:
             lblDir["text"] = "directory with target PDF files"
 
-   
     frame1 = Frame(root)
     frame1.pack(side="top",fill=tk.X,padx=10)
 
     btnSelect = tk.Button(root, text="Select", command=btnSelect, width=15)
     btnSelect.pack(in_=frame1, side=LEFT)
-    lblDir = tk.Label(root, text=tk.StringVar())
+    
+    lblDir = tk.Label(root, font=("Consolas",8),text=tk.StringVar())
     lblDir["text"] = "directory with target PDF files"
     lblDir.pack(in_=frame1, side=LEFT)
-                         
-    lblPg1 = tk.Label(root, text=tk.StringVar())
-    lblPg1.pack(pady=10)
-    lblPg1["text"] = "Process #1: PDF to image"
 
-    
-    progress1 = ttk.Progressbar(root, orient = HORIZONTAL, length = 500, mode = "determinate") 
-    progress1.pack(fill=tk.X, padx=10)
-
-
-
+    # Confirm & others
     def btnConfirm():
         btnSelect["state"] = "disabled"
         btnConfirm["state"] = "disabled"
@@ -64,42 +68,43 @@ def GUI():
         btnRename["state"] = "disabled"
         _thread.start_new_thread(main, ())
         
-        
     btnConfirm = tk.Button(root, text="Confirm", command=btnConfirm)
     btnConfirm.pack(padx=10,pady=10, fill=tk.X)
 
+    # Progress (Frame2)
     frame2 = Frame(root)
-    frame2.pack(fill=BOTH,padx=10)
-    scrollbar = Scrollbar(frame2, orient=VERTICAL)
-    listbox = Listbox(frame2, yscrollcommand=scrollbar.set)
-    scrollbar.config(command=listbox.yview)
-    scrollbar.pack(side=RIGHT, fill=Y)
+    frame2.pack(fill=BOTH,pady=15)
+                         
+    lblPg1 = tk.Label(frame2, text=tk.StringVar())
+    lblPg1.pack(in_=frame2)
+    lblPg1["text"] = "Progress: 0%"
+    
+    progress1 = ttk.Progressbar(frame2, orient = HORIZONTAL, length = 500, mode = "determinate") 
+    progress1.pack(in_=frame2,fill=tk.X, padx=10)
+
+    # Listbox (Frame3)
+    frame3 = Frame(root)
+    frame3.pack(fill=BOTH,padx=10,pady=10)
+    scrollbary = Scrollbar(frame3, orient=VERTICAL)
+    scrollbarx = Scrollbar(frame3, orient=HORIZONTAL)
+    listbox = Listbox(frame3, yscrollcommand=scrollbary.set,xscrollcommand=scrollbarx.set)
+    scrollbary.config(command=listbox.yview)
+    scrollbary.pack(side=RIGHT, fill=Y)
+    scrollbarx.config(command=listbox.xview)
+    scrollbarx.pack(side=BOTTOM, fill=X)
     listbox.pack(side=LEFT, fill=BOTH, expand=1)
 
-    listbox.insert(END, "All PDFs")
-    listbox.insert(END, "")
-    listbox.insert(END, "")
 
-    frame3 = Frame(root)
-    frame3.pack(fill=tk.X,padx=10)
+    # Buttons (Frame4)
+    frame4 = Frame(root)
+    frame4.pack(fill=tk.X,padx=10)
     
-    def btnRestart():
-        #root.destroy()
+    def btnExit():
+        exit()
         
-        '''
-        listbox.delete(3,listbox.size()-1)
-        btnSelect["state"] = "normal"
-        btnConfirm["state"] = "disabled"
-        btnExport["state"] = "disabled"
-        btnRename["state"] = "disabled"
-        lblDir["text"] = "directory with target PDF files"
-        lblPg1["text"] = "Process #1: PDF to image"
         
-        progress1["value"] = 0
-        '''
-        
-    btnRestart = tk.Button(frame3, text="Restart", command=btnRestart, width=15)
-    btnRestart.pack(in_=frame3, side=LEFT)
+    btnExit = tk.Button(frame4, text="Exit", command=btnExit, width=15)
+    btnExit.pack(in_=frame4, side=LEFT)
     
     def btnExport():
         
@@ -108,8 +113,8 @@ def GUI():
             output.toHTML(info, export_directory)
             messagebox.showinfo(title="Success!", message="Successfully exported!")
         
-    btnExport = tk.Button(frame3, text="Export", command=btnExport, width=15)
-    btnExport.pack(in_=frame3, side=RIGHT)
+    btnExport = tk.Button(frame4, text="Export", command=btnExport, width=15)
+    btnExport.pack(in_=frame4, side=RIGHT)
 
     def btnRename():
 
@@ -118,19 +123,20 @@ def GUI():
             messagebox.showinfo(title="Success", message="Successfully renamed!")
         else:
             messagebox.showinfo(title="Error", message="Something went wrong when renaming the file " + status + ". Do you have it opened using another application?")
-    btnRename = tk.Button(frame3, text="Rename", command=btnRename, width=15)
-    btnRename.pack(in_=frame3, side=RIGHT, padx=10)
+    btnRename = tk.Button(frame4, text="Rename", command=btnRename, width=15)
+    btnRename.pack(in_=frame4, side=RIGHT, padx=10)
     
     btnConfirm["state"] = "disabled"
     btnExport["state"] = "disabled"
     btnRename["state"] = "disabled"
+
     root.mainloop()
     
 
 
 
 def main():
-    global progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename
+    global progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
     docs = []
     info = []
     file_name = []
@@ -195,11 +201,13 @@ def main():
 
 
     progress1["value"] = 100
-    lblPg1["text"] = "Converting PDF to image, Progress: 100%"
+    lblPg1["text"] = "Progress: 100%"
     messagebox.showinfo(title="Success!", message="Successfully extracted!")
     count = 0
     btnExport["state"] = "normal"
     btnRename["state"] = "normal"
+    btnSelect["text"] = "Reselect"
+    btnSelect["state"] = "normal"
 
 if __name__ == '__main__':
-    _thread.start_new_thread(GUI, ()) 
+    GUI()
