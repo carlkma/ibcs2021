@@ -1,10 +1,13 @@
 import os
 import re
+import sys
 import cv2
 import output
+import webbrowser
 import findTitle
 import findAuthor
 import getMetadata
+
 import numpy as np
 import pytesseract
 from pdf2image import convert_from_path
@@ -100,7 +103,8 @@ def GUI():
     frame4.pack(fill=tk.X,padx=10)
     
     def btnExit():
-        exit()
+        root.destroy()
+        sys.exit()
         
         
     btnExit = tk.Button(frame4, text="Exit", command=btnExit, width=15)
@@ -129,6 +133,17 @@ def GUI():
     btnConfirm["state"] = "disabled"
     btnExport["state"] = "disabled"
     btnRename["state"] = "disabled"
+
+    def viewDoc(link):
+        if os.path.exists(link):
+            webbrowser.open_new("file://" + link)
+        else:
+            messagebox.showinfo(title="Error", message="The documentation is currently unavailable (to be completed)")
+
+    lblInfo = tk.Label(root, font=("Cambria",8),text="IBCS INTERNAL ASSESSMENT - Copyright (c) 2021 Carl Ma - CLICK TO VIEW DOCUMENTATION")
+    lblInfo.pack(side="bottom", fill="x")
+    
+    lblInfo.bind("<Button-1>", lambda e: viewDoc(os.getcwd() + "\documentation.html"))
 
     root.mainloop()
     
