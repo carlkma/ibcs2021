@@ -4,18 +4,68 @@ import shutil
 def toHTML(info, export_directory):
 
     with open(export_directory + "/index.html", "w") as file:
-        file.write("<!DOCTYPE html> <html> <head> <title>Documents</title> All Documents </head> <body>")
-        #file.write(export_directory)
-        file.write("<ol>")
-        for item in info:
-            file.write("<li>")
-            #file.write("<a href=\"" + directory + "\">asdf</a>")
-            file.write(item[0])
-            file.write("<ul> <li>" + item[1] + "</li> </ul>")
-            file.write("</li>")
+        file.write('''<!DOCTYPE html>
+<html>
+<head>
+<title>Documents</title>
+<style>
+#documents {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
 
-        file.write("</ol>")
-        file.write("</body>")
+#documents td, #documents th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#documents tr:nth-child(even){background-color: #f2f2f2;}
+
+#documents tr:hover {background-color: #ddd;}
+
+#documents th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #02696E;
+  color: white;
+}
+</style>
+</head>
+<body>
+
+<table id="documents">
+  <tr>
+    <th width=40%>Title</th>
+    <th width=20%>Author</th>
+    <th width=20%>Keywords</th>
+    <th width=10%>Publisher</th>
+    <th width=10%>Remarks</th>
+  </tr>''')
+        
+        
+        for item in info:
+            temp = []
+            for i in range(len(item)-1):
+                if item[i] != None:
+                    if len(item[i]) <= 300:
+                        temp.append(item[i])
+                    else:
+                        temp.append(item[i][:300])
+                else:
+                    temp.append("")
+            file.write("<tr onclick=\"document.location = \'" + item[5] + "\';\">")            
+            file.write("<td>" + temp[0] + "</td>")
+            file.write("<td>" + temp[1] + "</td>")
+            file.write("<td>" + temp[2] + "</td>")
+            file.write("<td>" + temp[3] + "</td>")
+            file.write("<td>" + temp[4] + "</td>")
+            file.write("</tr>")
+
+        file.write('''</table>
+</body>
+</html>''')
 
 def rename(file_name, info, directory):
     os.chdir(directory)

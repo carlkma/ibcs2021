@@ -19,7 +19,7 @@ import _thread
 import time
 
 def GUI():
-    global root, progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
+    global root, progressbar, lblProgress, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
     root = tk.Tk()
     
     root.title("PDFriend")
@@ -35,12 +35,12 @@ def GUI():
     def btnSelect():
         
         # reset things
-        progress1["value"] = 0
+        progressbar["value"] = 0
         listbox.delete(0,listbox.size()-1)
         btnExport["state"] = "disabled"
         btnRename["state"] = "disabled"
         lblDir["text"] = "directory with target PDF files"
-        lblPg1["text"] = "Progress: 0%"
+        lblProgress["text"] = "Progress: 0%"
         
         global directory
         directory = filedialog.askdirectory()
@@ -78,12 +78,12 @@ def GUI():
     frame2 = Frame(root)
     frame2.pack(fill=BOTH,pady=15)
                          
-    lblPg1 = tk.Label(frame2, text=tk.StringVar())
-    lblPg1.pack(in_=frame2)
-    lblPg1["text"] = "Progress: 0%"
+    lblProgress = tk.Label(frame2, text=tk.StringVar())
+    lblProgress.pack(in_=frame2)
+    lblProgress["text"] = "Progress: 0%"
     
-    progress1 = ttk.Progressbar(frame2, orient = HORIZONTAL, length = 500, mode = "determinate") 
-    progress1.pack(in_=frame2,fill=tk.X, padx=10)
+    progressbar = ttk.Progressbar(frame2, orient = HORIZONTAL, length = 500, mode = "determinate") 
+    progressbar.pack(in_=frame2,fill=tk.X, padx=10)
 
     # Listbox (Frame3)
     frame3 = Frame(root)
@@ -151,7 +151,7 @@ def GUI():
 
 
 def main():
-    global progress1, lblPg1, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
+    global progressbar, lblProgress, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
     docs = []
     info = []
     file_name = []
@@ -163,15 +163,20 @@ def main():
             
             count+=1
             val = count/len(os.listdir(directory)) * 100
-            progress1["value"] = val
-            lblPg1["text"] = "Progress: " + str(int(val)) + "%"
+            progressbar["value"] = val
+            lblProgress["text"] = "Progress: " + str(int(val)) + "%"
             
             file_name.append(file)
             file = directory + "//" + file
             title = getMetadata.getInfo(file, "title")
             author = getMetadata.getInfo(file, "creator")
+            keywords = getMetadata.getInfo(file, "subject")
+            publisher = getMetadata.getInfo(file, "publisher")
+            description = getMetadata.getInfo(file, "description")
+            
             if title != None or author != None:
-                info.append([title,author])
+                
+                info.append([title,author,keywords,publisher,description,file])
                 listbox.insert(END, str(count)+ " "+title)
                 listbox.insert(END, "")
                 continue
@@ -210,13 +215,13 @@ def main():
                 #cv2.rectangle(image, author_rect, (0,255,0), 5)
                 #cv2.imshow("author", cv2.resize(image, (image.shape[1]//2,image.shape[0]//2)))
 
-            info.append([title,author])
+            info.append([title,author,"","","",file])
             listbox.insert(END, str(count)+ " "+title)
             listbox.insert(END, "")
 
 
-    progress1["value"] = 100
-    lblPg1["text"] = "Progress: 100%"
+    progressbar["value"] = 100
+    lblProgress["text"] = "Progress: 100%"
     messagebox.showinfo(title="Success!", message="Successfully extracted!")
     count = 0
     btnExport["state"] = "normal"
