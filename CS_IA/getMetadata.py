@@ -118,7 +118,10 @@ def getInfo(file_path, field): # field = [title, publisher, creator, subject,des
         return None
     except FileNotFoundError:
         return None
-    file_info = file_info.decode("utf-8")
+    try:
+        file_info = file_info.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
     file_info = re.sub('\s\s+', ' ', file_info)
     
     

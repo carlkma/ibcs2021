@@ -2,12 +2,12 @@ import cv2
 import math
 import numpy as np
 from pythonRLSA import rlsa
-import findTitle
 
 def findAuthor(image,title_rect):
 	if title_rect != None:
 		(x,y,w,h) = title_rect
 		image[0:y+h,0:x+w] = 255
+		
 	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	thresh = cv2.threshold(image, 127, 255, 0)[1]
 	contours = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]

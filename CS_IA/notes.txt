@@ -1,0 +1,2 @@
+pyinstaller --onefile -w --add-data "documentation.html ; ." --icon=icon.ico main.py
+pyinstaller main.spec

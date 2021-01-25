@@ -1,0 +1,4 @@
+*.exe
+/CS_IA/__pycache__
+/CS_IA/build
+/CS_IA/dist
