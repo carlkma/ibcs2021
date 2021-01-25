@@ -18,8 +18,12 @@ from tkinter import ttk, filedialog, messagebox
 import _thread
 import time
 
+
 def GUI():
-    global root, progressbar, lblProgress, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
+    global root, progressbar, lblProgress, listbox, documents, btnSelect, btnConfirm, btnExport, btnRename, btnExit, hasExported
+    #documents = [[title, author, keywords, publisher, remarks, original_name, new_name, status], ... ]
+    # status: 0 not exported; 1 exported
+
     root = tk.Tk()
     
     root.title("PDFriend")
@@ -69,6 +73,8 @@ def GUI():
         btnConfirm["state"] = "disabled"
         btnExport["state"] = "disabled"
         btnRename["state"] = "disabled"
+        hasExported = False
+        print(hasExported)
         _thread.start_new_thread(main, ())
         
     btnConfirm = tk.Button(root, text="Confirm", command=btnConfirm)
@@ -114,7 +120,8 @@ def GUI():
         
         export_directory = filedialog.askdirectory()
         if export_directory != "":
-            output.toHTML(info, export_directory)
+            output.toHTML(documents, directory, export_directory)
+            documents[0][7] = 1
             messagebox.showinfo(title="Success!", message="Successfully exported!")
         
     btnExport = tk.Button(frame4, text="Export", command=btnExport, width=15)
@@ -122,9 +129,13 @@ def GUI():
 
     def btnRename():
 
-        status = output.rename(file_name, info, directory)
+        status = output.rename(documents, directory)
         if status == "%$OK":
-            messagebox.showinfo(title="Success", message="Successfully renamed!")
+        	
+        	if documents[0][7] == 0:
+        		messagebox.showinfo(title="Success", message="Successfully renamed!")
+        	else:
+        		messagebox.showinfo(title="Success", message="Successfully renamed! But the HTML file you previously exported contains outdated information, you will have to export again.")
         else:
             messagebox.showinfo(title="Error", message="Something went wrong when renaming the file " + status + ". Do you have it opened using another application?")
     btnRename = tk.Button(frame4, text="Rename", command=btnRename, width=15)
@@ -151,33 +162,38 @@ def GUI():
 
 
 def main():
-    global progressbar, lblProgress, listbox, file_name, info, btnSelect, btnConfirm, btnExport, btnRename, btnExit
+    global progressbar, lblProgress, listbox, documents, btnSelect, btnConfirm, btnExport, btnRename, btnExit
     docs = []
-    info = []
-    file_name = []
+    documents = []
     global directory
 
     count = 0
-    for file in os.listdir(directory):
-        if file.endswith(".pdf"):
+    for original_name in os.listdir(directory):
+        if original_name.endswith(".pdf"):
             
             count+=1
             val = count/len(os.listdir(directory)) * 100
             progressbar["value"] = val
             lblProgress["text"] = "Progress: " + str(int(val)) + "%"
             
-            file_name.append(file)
-            file = directory + "//" + file
-            title = getMetadata.getInfo(file, "title")
-            author = getMetadata.getInfo(file, "creator")
-            keywords = getMetadata.getInfo(file, "subject")
-            publisher = getMetadata.getInfo(file, "publisher")
-            description = getMetadata.getInfo(file, "description")
             
-            if title != None or author != None:
-                
-                info.append([title,author,keywords,publisher,description,file])
-                listbox.insert(END, str(count)+ " "+title)
+            original_path = directory + "//" + original_name
+            title = getMetadata.getInfo(original_path, "title")
+            author = getMetadata.getInfo(original_path, "creator") or ""
+            keywords = getMetadata.getInfo(original_path, "subject") or ""
+            publisher = getMetadata.getInfo(original_path, "publisher") or ""
+            description = getMetadata.getInfo(original_path, "description") or ""
+            
+            if title != None:
+                new_name = title
+                new_name = re.sub(":"," -",new_name)
+                new_name = re.sub(r"[^a-zA-Z0-9 _-]+","",new_name).strip()
+                if len(new_name) > 50:
+                    new_name = new_name[:50].strip()
+                new_name += ".pdf"
+
+                documents.append([title,author,keywords,publisher,description,original_name,new_name,0])
+                listbox.insert(END, str(count)+ ". "+title)
                 listbox.insert(END, "")
                 continue
 
@@ -214,9 +230,16 @@ def main():
                 author = author.strip()
                 #cv2.rectangle(image, author_rect, (0,255,0), 5)
                 #cv2.imshow("author", cv2.resize(image, (image.shape[1]//2,image.shape[0]//2)))
+            
+            new_name = title
+            new_name = re.sub(":"," -",new_name)
+            new_name = re.sub(r"[^a-zA-Z0-9 _-]+","",new_name).strip()
+            if len(new_name) > 50:
+                new_name = new_name[:50].strip()
+            new_name += ".pdf"
 
-            info.append([title,author,"","","",file])
-            listbox.insert(END, str(count)+ " "+title)
+            documents.append([title,author,"","","",original_name,new_name,0])
+            listbox.insert(END, str(count)+ ". "+title)
             listbox.insert(END, "")
 
 

@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-def toHTML(info, export_directory):
+def toHTML(documents, directory, export_directory):
 
     with open(export_directory + "/index.html", "w") as file:
         file.write('''<!DOCTYPE html>
@@ -45,55 +45,44 @@ def toHTML(info, export_directory):
   </tr>''')
         
         
-        for item in info:
-            temp = []
-            for i in range(len(item)-1):
-                if item[i] != None:
-                    if len(item[i]) <= 300:
-                        temp.append(item[i])
-                    else:
-                        temp.append(item[i][:300])
-                else:
-                    temp.append("")
-            file.write("<tr onclick=\"document.location = \'" + item[5] + "\';\">")            
-            file.write("<td>" + temp[0] + "</td>")
-            file.write("<td>" + temp[1] + "</td>")
-            file.write("<td>" + temp[2] + "</td>")
-            file.write("<td>" + temp[3] + "</td>")
-            file.write("<td>" + temp[4] + "</td>")
+        for document in documents:
+            full_path = directory + "//" + document[5]
+            if os.path.exists(full_path) == False:
+                full_path = directory + "//" + document[6]
+            file.write("<tr onclick=\"document.location = \'" + full_path + "\';\">")          
+            file.write("<td>" + document[0] + "</td>")
+            file.write("<td>" + document[1] + "</td>")
+            file.write("<td>" + document[2] + "</td>")
+            file.write("<td>" + document[3] + "</td>")
+            file.write("<td>" + document[4] + "</td>")
             file.write("</tr>")
 
         file.write('''</table>
-</body>
-</html>''')
+    </body>
+    </html>''')
 
-def rename(file_name, info, directory):
+def rename(documents, directory):
+
     os.chdir(directory)
     postfix = 1
     while os.path.exists(".backup-" + str(postfix)):
         postfix += 1
     os.mkdir(".backup-" + str(postfix))
-    for i in range(len(file_name)):
 
+    for document in documents:
         try:
-            shutil.copyfile(file_name[i], ".backup-" + str(postfix) + "//" + file_name[i])
+            shutil.copyfile(document[5], ".backup-" + str(postfix) + "//" + document[5])
         except FileNotFoundError:
             continue
-        old_name = file_name[i]
-        new_name = info[i][0]
-        new_name = re.sub(":"," -",new_name)
-        new_name = re.sub(r"[^a-zA-Z0-9 _-]+","",new_name).strip()
-        if len(new_name) > 50:
-            new_name = new_name[:50].strip()
-        new_name += ".pdf"
         try:
-            os.rename(old_name, new_name)
+            os.rename(document[5], document[6])
         except PermissionError:
-            if os.path.exists(".backup-" + str(postfix) + "//" + file_name[i]):
-                os.remove(".backup-" + str(postfix) + "//" + file_name[i])
+            if os.path.exists(".backup-" + str(postfix) + "//" + document[5]):
+                os.remove(".backup-" + str(postfix) + "//" + document[5])
             if len(os.listdir(".backup-" + str(postfix))) == 0:
                 os.rmdir(".backup-" + str(postfix))
-            return file_name[i]
+            return document[5]
     if len(os.listdir(".backup-" + str(postfix))) == 0:
         os.rmdir(".backup-" + str(postfix))
+
     return "%$OK"
