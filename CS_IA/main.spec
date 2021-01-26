@@ -6,7 +6,7 @@ block_cipher = None
 a = Analysis(['main.py'],
              pathex=['C:\\Users\\Carl\\ibcs2021\\CS_IA'],
              binaries=[],
-             datas=[('documentation.html', '.')],
+             datas=[('./combined/*', '.')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -30,4 +30,4 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False , icon='icon.ico')
+          console=True , icon='icon.ico')

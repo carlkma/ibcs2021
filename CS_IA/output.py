@@ -82,6 +82,8 @@ def rename(documents, directory):
             if len(os.listdir(".backup-" + str(postfix))) == 0:
                 os.rmdir(".backup-" + str(postfix))
             return document[5]
+        except FileExistsError:
+        	continue
     if len(os.listdir(".backup-" + str(postfix))) == 0:
         os.rmdir(".backup-" + str(postfix))
 

@@ -1,2 +1,8 @@
-pyinstaller --onefile -w --add-data "documentation.html ; ." --icon=icon.ico main.py
+pyinstaller --onefile main.py
 pyinstaller main.spec
+cd C:\Users\Carl\ibcs2021\CS_IA
+
+pyinstaller --onefile -w --add-data "documentation.html;." --icon=icon.ico main.py
+pyinstaller --onefile --add-data "./x64/*;./x64" -w --icon=icon.ico main.py
+pyinstaller --onefile --add-data "./combined/*;." --icon=icon.ico main.py
+pyinstaller --onedir --add-data "Tesseract_OCR/*;." --icon=icon.ico main.py
