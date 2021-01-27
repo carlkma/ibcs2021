@@ -11,14 +11,19 @@ Features:
 ## Installation
 
 1. Download `CS_IA/dist/_main/`
-1. If Poppler is not downloaded and in PATH, download Poppler and move all files in `poppler/` to `_main/`
-1. If Tesseract is not downloaded and in PATH, download Tesseract and the entire directory `Tesseract_OCR/` to `_main/`
+1. If Poppler is not downloaded and in PATH, download `poppler/` and move all files within the directory to `_main/`
+1. If Tesseract is not downloaded and in PATH, download `Tesseract_OCR/` and move the entire directory to `_main/`
 1. Run `_main/_main.exe`
+
+## Brief history
+PDFriend was initiated in 2019 as part of the author's International Baccalaureate Computer Science Internal Assessment, for submission in March 2021. Due to confidentiality reasons, the source code of this software will be released in August 2021. 
+
+The latest stable version is 1.1, released on January 27, 2021. 
 
 ## License
 
-> MIT License
-> Copyright (c) 2021 Carl Ma
+MIT License
+Copyright (c) 2021 [Carl Ma](https://github.com/macarl08)
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
