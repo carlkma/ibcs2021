@@ -10,10 +10,14 @@ Features:
 
 ## Installation
 
+*Windows*
 1. Download `CS_IA/dist/_main/`
 1. If Poppler is not downloaded and in PATH, download `poppler/` and move all files within the directory to `_main/`
 1. If Tesseract is not downloaded and in PATH, download `Tesseract_OCR/` and move the entire directory to `_main/`
 1. Run `_main/_main.exe`
+
+*Other systems*
+* Compile or run the Python scripts.
 
 ## Brief history
 PDFriend was initiated in 2019 as part of the author's International Baccalaureate Computer Science Internal Assessment, for submission in March 2021. Due to confidentiality reasons, the source code of this software will be released in August 2021. 
