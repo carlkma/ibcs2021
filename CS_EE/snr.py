@@ -3,15 +3,15 @@ import math
 import numpy as np
 from PIL import Image
 from skimage import util
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from keras.datasets import mnist
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 img1 = x_test[30]
-plt.imshow(img1, cmap=plt.cm.binary)
-plt.show()
+#plt.imshow(img1, cmap=plt.cm.binary)
+#plt.show()
 std = 0.01
-amount = 0.04
+amount = 0.01
 noise = "s&p"
 #img2 = util.random_noise(x_test[30],mode=noise,var=std**2)
 img2 = util.random_noise(x_test[30],mode=noise,amount=amount)
