@@ -1,4 +1,4 @@
-# PDFriend 1.1
+# PDFriend 1.2
 
 ## About
 This is a PDF file organization program based on [Poppler](https://github.com/freedesktop/poppler) and [Tesseract](https://github.com/tesseract-ocr/tesseract). 
@@ -22,7 +22,11 @@ Features:
 ## Brief history
 PDFriend was initiated in 2019 as part of the author's International Baccalaureate Computer Science Internal Assessment, for submission in March 2021. Due to confidentiality reasons, the source code of this software will be released in August 2021. 
 
-The latest stable version is 1.1, released on January 27, 2021. 
+The latest stable version is 1.2, released on March 4, 2021.
+
+Past releases:
+* V1.1 (January 27, 2021): First completed version
+
 
 ## License
 

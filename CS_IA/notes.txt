@@ -2,3 +2,9 @@ cd C:\Users\Carl\ibcs2021\CS_IA
 pyinstaller --onefile --add-data "./combined/*;." --icon=icon.ico _main.py
 pyinstaller --onedir --icon=icon.ico _main.py
 pyinstaller _main.spec
+
+color = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
+cv2.imwrite("asdf.png", image)
+cv2.rectangle(image, (x,y), (x+w,y+h), (0,255,0), 3)
+
+blue to yellow bcuz RGB -> BGR
