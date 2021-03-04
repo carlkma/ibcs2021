@@ -25,7 +25,8 @@ PDFriend was initiated in 2019 as part of the author's International Baccalaurea
 The latest stable version is 1.2, released on March 4, 2021.
 
 Past releases:
-* V1.1 (January 27, 2021): First completed version
+* [V1.2](https://github.com/macarl08/ibcs2021) (NEWEST): Simplify metadata_scan
+* [V1.1](https://github.com/macarl08/ibcs2021/tree/887796597a0ec61a93971fc5fdc84727e19d3bc7) (January 27, 2021): First completed version
 
 
 ## License
