@@ -1,4 +1,4 @@
-# PDFriend 1.2
+# PDFriend 1.3
 
 ## About
 This is a PDF file organization program based on [Poppler](https://github.com/freedesktop/poppler) and [Tesseract](https://github.com/tesseract-ocr/tesseract). 
@@ -22,10 +22,11 @@ Features:
 ## Brief history
 PDFriend was initiated in 2019 as part of the author's International Baccalaureate Computer Science Internal Assessment, for submission in March 2021. Due to confidentiality reasons, the source code of this software will be released in August 2021. 
 
-The latest stable version is 1.2, released on March 4, 2021.
+The latest stable version is 1.3, released on March 22, 2021.
 
 Past releases:
-* [V1.2](https://github.com/macarl08/ibcs2021) (NEWEST): Simplify metadata_scan
+* [V1.3](https://github.com/macarl08/ibcs2021) (NEWEST): Completed for submission to IB
+* [V1.2](https://github.com/macarl08/ibcs2021/tree/3731fe536d59f8485cd338338fcb97f3fca2ae04) (March 4, 2021): Simplify metadata_scan module
 * [V1.1](https://github.com/macarl08/ibcs2021/tree/887796597a0ec61a93971fc5fdc84727e19d3bc7) (January 27, 2021): First completed version
 
 
