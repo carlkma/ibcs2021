@@ -5,31 +5,55 @@ from pythonRLSA import rlsa
 
 def findTitle(image):
 	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	# ^convert image to grayscale
 	thresh = cv2.threshold(image, 127, 255, 0)[1]
+	# ^convert image to black and white
 	contours = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]
+	# ^find contour lines in the image
 	avgLetterHeight = sum(cv2.boundingRect(contour)[3] for contour in contours) / len(contours)
+	# ^define the average letter height as the average height of contour lines
 	mask = np.ones(image.shape, dtype="uint8") * 255
+	# ^create a blank white image mask for use later
 
+
+	# TO DELETE: header and/or header line, if present
 	for contour in contours:
 	    [x,y,w,h] = cv2.boundingRect(contour)
 	    to_delete = h < avgLetterHeight and w > 0.75* image.shape[1] and y < 0.5* image.shape[0]
+	    # HOW TO FIND THE HEADER LINE?
+    	# - height smaller than average letter height
+    	# - width larger than 75% of document width
+    	# - positioned at top half of document
 	    
 	    if to_delete:
 	    	image[0:y,] = 255
+	    	# ^remove (whiten) everything above header line
 	    	break
 
 	thresh = cv2.threshold(image, 127, 255, 0)[1]
 	contours = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]
+	# ^again, find contour lines in the modified image
 	
+	# TO KEEP: large-font characters
 	for contour in contours:
 		[x,y,w,h] = cv2.boundingRect(contour)
+		# HOW TO IDENTIFY LARGE-FONT CHARACTERS?
+		# - height greater than two times the average letter height
+		# - height less than the document height
+		# ^(to ignore the one contour featuring the document dimensions)
 		if h > avgLetterHeight*2 and h < image.shape[0]:
 			cv2.drawContours(mask, contour, -1, 0)
 
+	# TO DO: connect close but discrete pixels together, horizontally
 	mask = rlsa.rlsa(mask, True, False, image.shape[0]//15)
+	# ^use of the external library pythonRLSA
+	# RLSA, RUN LENGTH SMOOTHING ALGORITHM
 	#(vertical, horizontal)
+
+	# TO DO: Inflate the pixels to make the blocks even more distinguishable
 	kernel = np.ones((image.shape[0]//300,image.shape[0]//200), np.uint8) 
 	eroded = cv2.erode(mask, kernel, iterations=2)
+	# ^use of the external library opencv
 
 	'''#---------- DISPLAY ----------# 
 	cv2.imshow("~eroded",cv2.resize(~eroded,(image.shape[1]//2,image.shape[0]//2)))
@@ -38,15 +62,25 @@ def findTitle(image):
 
 	contours = cv2.findContours(~eroded, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]
 	avgBlockHeight = sum(cv2.boundingRect(contour)[3] for contour in contours) / len(contours)
+	# ^again, find contour lines and average block height in the modified image mask
 	
 	possible_title = []
 	actual_title = []
 	for contour in contours:
 	    x,y,w,h = cv2.boundingRect(contour)
+		# WHICH BLOCK TO SELECT AS POSSIBLE TITLE REGION:
+		# - Horizontal position less thatn 25% of document width
+		# - Vertical position less than 25% of document width
+		# - width larger than 25% of document width
+		# - height larger than average block height
 	    if x < image.shape[1]/4 and y < image.shape[0]/4 and w > image.shape[1]/4 and h > avgBlockHeight:
 	    	possible_title.append([x,y,w,h])
 
 	possible_title.reverse()
+	# reverse nesscary since contours are initially found from bottom to top 
+
+	# TO DO: consider titles that span over multiple lines
+	# understanding of specifics not required
 	flag = False
 	for i in range(len(possible_title)):
 		x,y,w,h = possible_title[i]
@@ -69,6 +103,7 @@ def findTitle(image):
 	if actual_title == []:
 		return None
 
+	# return the predicted title region
 	x = min(each[0] for each in actual_title)
 	y = actual_title[0][1]
 	w = max(each[2] for each in actual_title)

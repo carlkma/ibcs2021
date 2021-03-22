@@ -80,12 +80,12 @@ def GUI():
     lblDir.pack(in_=frame1, side=tk.LEFT)
 
     # Confirm & others
-    def btnConfirm():
-        btnSelect["state"] = "disabled"
+    def btnConfirm():   # Definition of actions once the Confirm button is clicked
+        btnSelect["state"] = "disabled"   # Disabling various buttons to prevent inappropriate clicks
         btnConfirm["state"] = "disabled"
         btnExport["state"] = "disabled"
         btnRename["state"] = "disabled"
-        _thread.start_new_thread(main, ())
+        _thread.start_new_thread(main, ())   # Starting a new thread that runs the driver method
         
     btnConfirm = tk.Button(root, text="Confirm", command=btnConfirm)
     btnConfirm.pack(padx=10,pady=10, fill=tk.X)
@@ -161,10 +161,10 @@ def GUI():
         else:
             messagebox.showinfo(title="Error", message="The documentation is currently unavailable (to be completed)")
 
-    lblInfo = tk.Label(root, font=("Cambria",8),text="IBCS INTERNAL ASSESSMENT - Copyright (c) 2021 Carl Ma - CLICK TO VIEW DOCUMENTATION")
+    lblInfo = tk.Label(root, font=("Cambria",8),text="IBCS INTERNAL ASSESSMENT - Copyright (c) 2021")
     lblInfo.pack(side="bottom", fill="x")
     
-    lblInfo.bind("<Button-1>", lambda e: viewDoc(os.getcwd() + "\documentation.html"))
+    #lblInfo.bind("<Button-1>", lambda e: viewDoc(os.getcwd() + "\documentation.html"))
 
     root.mainloop()
     
@@ -191,6 +191,8 @@ def main():
             original_path = directory + "//" + original_name
             title = metadata_scan.getInfo(original_path, "title")
             author = metadata_scan.getInfo(original_path, "creator") or ""
+            # ^some PDF metadata only contains the title,
+            # in this case, a blank string is assigned to the variables
             keywords = metadata_scan.getInfo(original_path, "subject") or ""
             publisher = metadata_scan.getInfo(original_path, "publisher") or ""
             description = metadata_scan.getInfo(original_path, "description") or ""
@@ -199,8 +201,10 @@ def main():
                 new_name = title
                 new_name = re.sub(":"," -",new_name)
                 new_name = re.sub(r"[^a-zA-Z0-9 _-]+","",new_name).strip()
+                # ^replace any unallowed char
                 if len(new_name) > 50:
                     new_name = new_name[:50].strip()
+                    # ^keep the title length within 50 char
                 new_name += ".pdf"
 
                 documents.append([title,author,keywords,publisher,description,original_name,new_name,0])
@@ -211,8 +215,11 @@ def main():
             try:
                 page = convert_from_path(pdf_path=original_path)[0]
             except Exception as e:
+            	# convert_from_path relies on an external library,
+            	# if not installed, an error is displayed
                 listbox.insert(tk.END, e)
-                messagebox.showinfo(title="Error", message="A problem occurred when processing "+original_name+". (Error: )"+e)
+                messagebox.showinfo(title="Error", message="A problem occurred when processing "+original_name+". Error: "+str(e))
+                count -= 1
                 continue
             image = np.array(page)
 
@@ -220,14 +227,16 @@ def main():
             if os.path.exists('./Tesseract_OCR/tesseract.exe'):
                 pytesseract.pytesseract.tesseract_cmd = './Tesseract_OCR/tesseract.exe'
             title_rect = ocr_scan.findTitle(image)
+            # ^extract coordinates of title region
             if title_rect == None:
                 title = "N/A"
             else:
                 (x,y,w,h) = title_rect
                 try:
                     title = pytesseract.image_to_string(image[y:y+h,x:])
+                    # ^extract char from title region
                 except Exception as e:
-                    messagebox.showinfo(title="Error", message="A problem occurred when processing "+original_name+". (Error: )"+e)
+                    messagebox.showinfo(title="Error", message="A problem occurred when processing "+original_name+". Error: "+str(e))
                     continue
                 title = re.sub(r"[^a-zA-Z0-9 &,;:-]+", " ", title)
                 title = re.sub(r"\s\s+", " ", title)
@@ -262,7 +271,10 @@ def main():
 
     progressbar["value"] = 100
     lblProgress["text"] = "Progress: 100%"
-    messagebox.showinfo(title="Success!", message="Successfully extracted!")
+    if count == 0:
+        messagebox.showinfo(title="Alert!", message="There are no PDF files in this directory!")
+    else:
+        messagebox.showinfo(title="Success!", message="Successfully extracted!")
     count = 0
     btnExport["state"] = "normal"
     btnRename["state"] = "normal"

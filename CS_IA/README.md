@@ -4,7 +4,7 @@
 This is a PDF file organization program based on [Poppler](https://github.com/freedesktop/poppler) and [Tesseract](https://github.com/tesseract-ocr/tesseract). 
 
 Features:
-* Extract information such as title, author, keywords, and publisher from a PDFs in a selected directory
+* Extract information such as title, author, keywords, and publisher from PDFs in a selected directory
 * Generate an interactive HTML file presenting the above information
 * Rename the PDFs based on their corresponding titles
 
